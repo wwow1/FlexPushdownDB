@@ -18,6 +18,7 @@ using namespace normal::core::graph;
 using namespace normal::pushdown;
 using namespace normal::pushdown::join;
 using namespace normal::pushdown::test;
+using namespace normal::pushdown::file;
 
 #define SKIP_SUITE true
 

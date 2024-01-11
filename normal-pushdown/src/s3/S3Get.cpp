@@ -22,7 +22,6 @@
 #include <aws/s3/model/RecordsEvent.h>                      // for RecordsEvent
 #include <aws/s3/model/GetObjectRequest.h>                  // for GetObj...
 
-
 #include "normal/core/message/Message.h"                    // for Message
 #include "normal/tuple/TupleSet.h"                          // for TupleSet
 #include <normal/core/cache/LoadResponseMessage.h>
@@ -31,12 +30,11 @@
 #include "normal/pushdown/Globals.h"
 #include <parquet/arrow/reader.h>
 #include <normal/tuple/arrow/ArrowAWSInputStream.h>
+#include <normal/tuple/arrow/ArrowAWSGZIPInputStream2.h>
 
-#ifdef __AVX2__
 #include <normal/plan/Globals.h>
 #include "normal/tuple/arrow/CSVToArrowSIMDStreamParser.h"
 
-#endif
 
 namespace Aws::Utils::RateLimits { class RateLimiterInterface; }
 namespace arrow { class MemoryPool; }
@@ -238,7 +236,7 @@ std::shared_ptr<TupleSet2> S3Get::s3GetFullRequest() {
       auto parser = CSVToArrowSIMDStreamParser(name(), DefaultS3ConversionBufferSize, retrievedFile, true, schema_, outputSchema, true, normal::connector::defaultMiniCatalogue->getCSVFileDelimiter());
       tupleSet = parser.constructTupleSet();
 #else
-      inputStream = std::make_shared<ArrowAWSGZIPInputStream2>(retrievedFile, resultSize);
+      inputStream = std::make_shared<ArrowAWSGZIPInputStream2>(retrievedFile);
       tupleSet = readCSVFile(inputStream);
 #endif
     } else {

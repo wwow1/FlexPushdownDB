@@ -20,6 +20,8 @@
 #include <normal/connector/MiniCatalogue.h>
 #include <normal/ssb/SSBSchema.h>
 #include <normal/pushdown/Globals.h>
+#include <normal/tuple/arrow/CSVToArrowSIMDStreamParser.h>
+#include <normal/tuple/arrow/CSVToArrowSIMDChunkParser.h>
 
 #include <aws/s3/model/GetObjectRequest.h>                  // for GetObj...
 #include <aws/s3/S3Client.h>
@@ -35,14 +37,8 @@
 #include <aws/s3/model/SelectObjectContentHandler.h>        // for SelectObj...
 #include <aws/s3/model/StatsEvent.h>                        // for StatsEvent
 #include <aws/s3/model/ListObjectsRequest.h>
-
 #include <arrow/csv/reader.h>                               // for TableReader
 #include <arrow/type_fwd.h>                                 // for default_m...
-
-#ifdef __AVX2__
-#include <normal/tuple/arrow/CSVToArrowSIMDStreamParser.h>
-#include <normal/tuple/arrow/CSVToArrowSIMDChunkParser.h>
-#endif
 
 #define SKIP_SUITE false
 
@@ -111,9 +107,7 @@ void simpleSelectRequest(const std::shared_ptr<Aws::S3::S3Client>& s3Client, int
   std::string callerName = "testCaller";
   // Only worrying about parser performance when AVX instructions are on as that is the test setup we run in
   // so only added support for that here rather than adding non AVX converting too
-#ifdef __AVX2__
     auto parser = std::make_shared<CSVToArrowSIMDChunkParser>(callerName, 16 * 1024 * 1024, inputSchema, outputSchema, normal::connector::defaultMiniCatalogue->getCSVFileDelimiter());
-#endif
   std::mutex convertSelectResponseLock;
   std::vector<char*> allocations;
   std::vector<size_t> allocation_sizes;
@@ -422,7 +416,7 @@ void normal::ssb::mainTest(size_t cacheSize, int modeType, int cachingPolicyType
   if (mode->id() != normal::plan::operator_::mode::ModeId::FullPullup &&
       mode->id() != normal::plan::operator_::mode::ModeId::FullPushdown) {
     SPDLOG_CRITICAL("Cache warm phase:");
-    for (auto index = 1; index <= warmBatchSize; ++index) {
+    for (int index = 1; index <= warmBatchSize; ++index) {
       SPDLOG_CRITICAL("sql {}", index);
       if (cachingPolicy->id() == BELADY) {
         normal::cache::beladyMiniCatalogue->setCurrentQueryNum(index);
@@ -438,7 +432,8 @@ void normal::ssb::mainTest(size_t cacheSize, int modeType, int cachingPolicyType
     SPDLOG_CRITICAL("First-run query:");
     auto sql_file_path = sql_file_dir_path.append(fmt::format("{}.sql", 1));
     auto sql = read_file(sql_file_path.string());
-    executeSql(i, sql, false, false, fmt::format("{}output.txt", index));
+    // 这里要传入index作为参数肯定是错的，它未被定义
+    executeSql(i, sql, false, false, fmt::format("{}.output", 1));
     sql_file_dir_path = sql_file_dir_path.parent_path();
   }
 
@@ -520,7 +515,7 @@ void normal::ssb::perfBatchRun(int modeType, const std::string& dirPrefix, int c
   SPDLOG_INFO("{} mode start", mode->toString());
   // Run queries (if there are any) to fill the cache
   SPDLOG_INFO("Cache fill phase:");
-  for (auto index = 1; index <= cacheLoadQueries; ++index) {
+  for (int index = 1; index <= cacheLoadQueries; ++index) {
     SPDLOG_INFO("sql {}", index);
     auto sql_file_path = sql_file_dir_path.append(fmt::format("{}.sql", index));
     auto sql = read_file(sql_file_path.string());
@@ -552,7 +547,7 @@ void normal::ssb::perfBatchRun(int modeType, const std::string& dirPrefix, int c
       } else {
         SPDLOG_INFO("Saving results for {}", sqlIndex);
       }
-      executeSql(i, sql, saveMetrics, false, fmt::format("{}output.txt", index));
+      executeSql(i, sql, saveMetrics, false, fmt::format("{}output.txt", sqlIndex));
       sql_file_dir_path = sql_file_dir_path.parent_path();
       // Reset the cache metrics for the next query
       i.getOperatorManager()->clearCrtQueryMetrics();

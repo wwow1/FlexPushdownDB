@@ -21,6 +21,39 @@ std::shared_ptr<BloomCreateKernel> BloomCreateKernel::make(const std::string &co
   return std::make_shared<BloomCreateKernel>(columnName, desiredFalsePositiveRate, bloomJoinUseSqlTemplates);
 }
 
+  [[nodiscard]] tl::expected<void, std::string> BloomCreateKernel::addRecordBatchToBloomFilter(::arrow::RecordBatch &recordBatch,
+																			int keyColumnIndex) {
+
+	auto columnTypeId = recordBatch.column(keyColumnIndex)->type_id();
+
+	switch (columnTypeId) {
+	case arrow::Type::BOOL:
+	  addRecordBatchToBloomFilter<::arrow::BooleanArray>(recordBatch, keyColumnIndex);
+	  break;
+	case arrow::Type::INT8:
+	  addRecordBatchToBloomFilter<::arrow::Int8Array>(recordBatch, keyColumnIndex);
+	  break;
+	case arrow::Type::INT16:
+	  addRecordBatchToBloomFilter<::arrow::Int16Array>(recordBatch, keyColumnIndex);
+	  break;
+	case arrow::Type::INT32:
+	  addRecordBatchToBloomFilter<::arrow::Int32Array>(recordBatch, keyColumnIndex);
+	  break;
+	case arrow::Type::INT64:
+	  addRecordBatchToBloomFilter<::arrow::Int64Array>(recordBatch, keyColumnIndex);
+	  break;
+	case arrow::Type::STRING:
+	  addRecordBatchToBloomFilter<::arrow::StringArray>(recordBatch, keyColumnIndex);
+	  break;
+	default:
+	  return tl::make_unexpected(fmt::format(
+		  "Adding record batch column to bloom filter is not implemented for arrays of type {}",
+		  columnTypeId));
+	}
+
+	return {};
+  }
+
 tl::expected<void, std::string> BloomCreateKernel::addTupleSet(const std::shared_ptr<TupleSet2> &tupleSet) {
   if(!receivedTupleSet_.has_value()){
 	receivedTupleSet_ = tupleSet;

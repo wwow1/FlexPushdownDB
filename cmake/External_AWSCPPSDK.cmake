@@ -1,11 +1,11 @@
 # AWS SDK
-set(AWS_CPP_SDK_VERSION "1.8.49")
+set(AWS_CPP_SDK_VERSION "1.9.0")
 set(AWS_CPP_SDK_GIT_URL "https://github.com/aws/aws-sdk-cpp.git")
 
 
 include(ExternalProject)
 find_package(Git REQUIRED)
-
+message("CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 
 set(AWSCPPSDK_BASE aws-cpp-sdk_ep)
 set(AWSCPPSDK_PREFIX ${DEPS_PREFIX}/${AWSCPPSDK_BASE})

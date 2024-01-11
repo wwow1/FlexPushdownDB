@@ -7,6 +7,8 @@ LINK_DIRECTORIES(/usr/local/opt/libdeflate/lib)
 LINK_DIRECTORIES(/usr/local/lib)
 INCLUDE_DIRECTORIES(/usr/local/include)
 
+add_link_options(-Wl,--copy-dt-needed-entries)
+
 #-----------------------------------------------------------------------------------------------------------------------
 # SSB common classes
 #-----------------------------------------------------------------------------------------------------------------------

@@ -12,7 +12,6 @@
 #include "SlicedBloomFilter.h"
 
 using namespace normal::tuple;
-
 class BloomCreateKernel {
 
 public:
@@ -38,10 +37,15 @@ private:
   std::optional<std::shared_ptr<TupleSet2>> receivedTupleSet_;
   std::optional<std::shared_ptr<SlicedBloomFilter>> bloomFilter_;
 
+	template<typename ArrowArrayType>
+  void addRecordBatchToBloomFilter(::arrow::RecordBatch &recordBatch, int keyColumnIndex);
+	
+	[[nodiscard]] tl::expected<void, std::string> addRecordBatchToBloomFilter(::arrow::RecordBatch &recordBatch, int keyColumnIndex);
   tl::expected<double, std::string> calculateBestFalsePositiveRate(const size_t &maxBloomJoinUseSQLTemplateSize);
+};
 
   template<typename ArrowArrayType>
-  void addRecordBatchToBloomFilter(::arrow::RecordBatch &recordBatch, int keyColumnIndex) {
+  void BloomCreateKernel::addRecordBatchToBloomFilter(::arrow::RecordBatch &recordBatch, int keyColumnIndex) {
 	auto keyColumn = std::static_pointer_cast<ArrowArrayType>(recordBatch.column(keyColumnIndex));
 	for (int r = 0; r < recordBatch.num_rows(); ++r) {
 	  bloomFilter_.value()->add(keyColumn->Value(r));
@@ -49,46 +53,10 @@ private:
   }
 
   template<>
-  void addRecordBatchToBloomFilter<::arrow::StringArray>(::arrow::RecordBatch &recordBatch, int keyColumnIndex) {
-	auto keyColumn = std::static_pointer_cast<::arrow::StringArray>(recordBatch.column(keyColumnIndex));
-	for (int r = 0; r < recordBatch.num_rows(); ++r) {
-	  bloomFilter_.value()->add(std::stoi(keyColumn->GetString(r)));
+  void BloomCreateKernel::addRecordBatchToBloomFilter<::arrow::StringArray>(::arrow::RecordBatch &recordBatch, int keyColumnIndex) {
+		auto keyColumn = std::static_pointer_cast<::arrow::StringArray>(recordBatch.column(keyColumnIndex));
+		for (int r = 0; r < recordBatch.num_rows(); ++r) {
+			bloomFilter_.value()->add(std::stoi(keyColumn->GetString(r)));
+		}
 	}
-  }
-
-  [[nodiscard]] tl::expected<void, std::string> addRecordBatchToBloomFilter(::arrow::RecordBatch &recordBatch,
-																			int keyColumnIndex) {
-
-	auto columnTypeId = recordBatch.column(keyColumnIndex)->type_id();
-
-	switch (columnTypeId) {
-	case arrow::Type::BOOL:
-	  addRecordBatchToBloomFilter<::arrow::BooleanArray>(recordBatch, keyColumnIndex);
-	  break;
-	case arrow::Type::INT8:
-	  addRecordBatchToBloomFilter<::arrow::Int8Array>(recordBatch, keyColumnIndex);
-	  break;
-	case arrow::Type::INT16:
-	  addRecordBatchToBloomFilter<::arrow::Int16Array>(recordBatch, keyColumnIndex);
-	  break;
-	case arrow::Type::INT32:
-	  addRecordBatchToBloomFilter<::arrow::Int32Array>(recordBatch, keyColumnIndex);
-	  break;
-	case arrow::Type::INT64:
-	  addRecordBatchToBloomFilter<::arrow::Int64Array>(recordBatch, keyColumnIndex);
-	  break;
-	case arrow::Type::STRING:
-	  addRecordBatchToBloomFilter<::arrow::StringArray>(recordBatch, keyColumnIndex);
-	  break;
-	default:
-	  return tl::make_unexpected(fmt::format(
-		  "Adding record batch column to bloom filter is not implemented for arrays of type {}",
-		  columnTypeId));
-	}
-
-	return {};
-  }
-
-};
-
 #endif //NORMAL_NORMAL_PUSHDOWN_INCLUDE_NORMAL_PUSHDOWN_BLOOMJOIN_BLOOMCREATEKERNEL_H

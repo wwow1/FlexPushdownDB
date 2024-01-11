@@ -4,6 +4,8 @@
 
 #include "normal/plan/mode/Mode.h"
 #include <string>
+#include <stdexcept>
+
 
 using namespace normal::plan::operator_::mode;
 

@@ -58,8 +58,13 @@ public:
 	}
   }
 
+private:
+  std::shared_ptr<::arrow::Scalar> scalar_;
+
+};
+
   template<>
-  std::string value<std::string>() {
+  inline std::string Scalar::value<std::string>() {
 	if (scalar_->type->id() == ::arrow::StringType::type_id) {
 	  auto typedScalar = std::static_pointer_cast<::arrow::StringScalar>(scalar_);
 	  auto typedValue = typedScalar->ToString();
@@ -71,7 +76,7 @@ public:
   }
 
   template<>
-  ::arrow::Decimal128 value<::arrow::Decimal128>() {
+  inline ::arrow::Decimal128 Scalar::value<::arrow::Decimal128>() {
 	if (scalar_->type->id() == ::arrow::Decimal128Type::type_id) {
 	  auto typedScalar = std::static_pointer_cast<::arrow::Decimal128Scalar>(scalar_);
 	  auto typedValue = typedScalar->value;
@@ -81,11 +86,6 @@ public:
 		  "Scalar type '" + scalar_->type->ToString() + "' not implemented yet");
 	}
   }
-
-private:
-  std::shared_ptr<::arrow::Scalar> scalar_;
-
-};
 
 }
 

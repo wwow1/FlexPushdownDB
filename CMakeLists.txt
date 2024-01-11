@@ -2,8 +2,15 @@ cmake_minimum_required(VERSION 3.15)
 project("normal" VERSION "${PROJECT_VERSION}" LANGUAGES C CXX)
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR}/cmake")
-
+set(OPENSSL_CRYPTO_LIBRARY /usr/lib64/libcrypto.so)
 include(CMakeUtils)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w -mavx2")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w -mavx2")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 
 setDefaults()
 

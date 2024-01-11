@@ -6,6 +6,10 @@
 #define NORMAL_NORMAL_PUSHDOWN_SRC_AWSCLIENT_H
 
 #include <memory>
+#include <iostream>
+#include <fstream>
+#include <regex>
+#include <string>
 
 #include <aws/core/Aws.h>
 #include <aws/core/utils/ratelimiter/DefaultRateLimiter.h>

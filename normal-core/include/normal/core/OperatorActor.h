@@ -7,7 +7,7 @@
 
 #include <memory>
 #include <queue>
-
+#include <optional>
 #include <caf/all.hpp>
 
 #include "normal/core/message/Message.h"

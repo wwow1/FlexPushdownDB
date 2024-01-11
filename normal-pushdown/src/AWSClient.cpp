@@ -100,6 +100,44 @@ std::shared_ptr<Aws::S3::S3Client> AWSClient::defaultS3Client() {
               false);
       break;
     }
+    case normal::plan::Ceph: {
+      SPDLOG_INFO("Using Ceph Client");
+      config.endpointOverride = "192.168.6.95:7480";
+      std::ifstream configFile("/root/.s3cfg");
+      if (!configFile.is_open()) {
+        throw std::runtime_error("Error: Unable to open .s3cfg file.");
+      }
+      std::string line;
+      std::regex accessKeyRegex(R"(access_key = (.+))");
+      std::regex secretKeyRegex(R"(secret_key = (.+))");
+
+      std::smatch match;
+      Aws::String accessKeyId;
+      Aws::String secretKey;
+
+      while (std::getline(configFile, line)) {
+        if (std::regex_search(line, match, accessKeyRegex)) {
+            accessKeyId = match[1].str();;
+        } else if (std::regex_search(line, match, secretKeyRegex)) {
+            secretKey = match[1].str();
+        }
+      }
+
+      configFile.close();
+      // Check if both Access Key and Secret Key are found
+      if (accessKeyId.empty() || secretKey.empty()) {
+        throw std::runtime_error("Error: Access Key or Secret Key not found in .s3cfg file.");
+      }
+      Aws::Auth::AWSCredentials cephCredentials = Aws::Auth::AWSCredentials(accessKeyId, secretKey);
+
+      s3Client = Aws::MakeShared<Aws::S3::S3Client>(
+              ALLOCATION_TAG,
+              cephCredentials,
+              config,
+              Aws::Client::AWSAuthV4Signer::PayloadSigningPolicy::Never,
+              false);
+      break;
+    }
     default: {
       throw std::runtime_error("Bad S3Client Type");
     }

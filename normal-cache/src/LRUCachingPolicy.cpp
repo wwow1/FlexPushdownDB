@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include <utility>
+#include <limits>
 #include "normal/cache/LRUCachingPolicy.h"
 #include <normal/plan/mode/Modes.h>
 

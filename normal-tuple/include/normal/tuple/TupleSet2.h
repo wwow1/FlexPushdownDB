@@ -6,6 +6,7 @@
 #define NORMAL_NORMAL_TUPLE_INCLUDE_NORMAL_TUPLE_TUPLESET2_H
 
 #include <vector>
+#include <optional>
 
 #include <arrow/api.h>
 #include <arrow/table.h>

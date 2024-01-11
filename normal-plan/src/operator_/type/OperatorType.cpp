@@ -4,6 +4,7 @@
 
 #include <normal/plan/operator_/type/OperatorType.h>
 #include <string>
+#include <stdexcept>
 
 using namespace normal::plan::operator_::type;
 
