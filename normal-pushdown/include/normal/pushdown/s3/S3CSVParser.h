@@ -15,7 +15,7 @@
 #include <aws/s3/model/SelectObjectContentRequest.h>
 #include <aws/core/client/ClientConfiguration.h>
 #include <normal/tuple/TupleSet.h>
-
+#include <optional>
 using namespace normal::tuple;
 
 namespace normal::pushdown::s3 {

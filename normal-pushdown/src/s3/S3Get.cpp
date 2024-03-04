@@ -117,6 +117,7 @@ bool S3Get::parallelTuplesetCreationSupported() {
 std::shared_ptr<TupleSet2> S3Get::readCSVFile(std::shared_ptr<arrow::io::InputStream> &arrowInputStream) {
   auto ioContext = arrow::io::IOContext();
   auto parse_options = arrow::csv::ParseOptions::Defaults();
+  parse_options.delimiter = '|';
   auto read_options = arrow::csv::ReadOptions::Defaults();
   read_options.use_threads = false;
   read_options.skip_rows = 1; // Skip the header

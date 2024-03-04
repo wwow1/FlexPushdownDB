@@ -172,7 +172,7 @@ std::shared_ptr<TupleSet2> S3Select::s3Select(uint64_t startOffset, uint64_t end
 #ifdef __AVX2__
   auto simdParser = generateSIMDParser();
 #else
-  auto parser = generateParser();
+  auto parser_ = generateParser();
 #endif
   // create s3select request (must create a new one for each call as different start/end offsets require a new
   // S3Select request object
@@ -215,6 +215,7 @@ std::shared_ptr<TupleSet2> S3Select::s3Select(uint64_t startOffset, uint64_t end
   selectObjectContentRequest.SetInputSerialization(inputSerialization);
 
   CSVOutput csvOutput;
+  csvOutput.SetFieldDelimiter("|");
   OutputSerialization outputSerialization;
   outputSerialization.SetCSV(csvOutput);
   selectObjectContentRequest.SetOutputSerialization(outputSerialization);
@@ -332,7 +333,7 @@ std::shared_ptr<TupleSet2> S3Select::s3Select(uint64_t startOffset, uint64_t end
 #else
   // If no results are returned then there is nothing to process
   if (s3Result_.size() > 0) {std::shared_ptr<TupleSet> tupleSetV1 = parser_->parseCompletePayload(s3Result_.begin(), s3Result_.end());
-    auto tupleSet = TupleSet2::create(tupleSetV1);
+    tupleSet = TupleSet2::create(tupleSetV1);
   } else {
     tupleSet = TupleSet2::make2();
   }

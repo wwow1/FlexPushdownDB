@@ -38,12 +38,7 @@ std::shared_ptr<arrow::DataType> parseDataType(const std::string &s) {
 }
 
 char getCsvFileDelimiterForSchema(const std::string& schemaName) {
-  // This is fine for now as only ssb-sf100-sortlineorder/csv_150MB/ uses a non comma delimiter among CSV files
-  if (schemaName == "ssb-sf100-sortlineorder/csv_150MB/") {
-    return '|';
-  } else {
-    return ',';
-  }
+  return '|';
 }
 
 }

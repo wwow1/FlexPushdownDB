@@ -20,8 +20,6 @@
 #include <normal/connector/MiniCatalogue.h>
 #include <normal/ssb/SSBSchema.h>
 #include <normal/pushdown/Globals.h>
-#include <normal/tuple/arrow/CSVToArrowSIMDStreamParser.h>
-#include <normal/tuple/arrow/CSVToArrowSIMDChunkParser.h>
 
 #include <aws/s3/model/GetObjectRequest.h>                  // for GetObj...
 #include <aws/s3/S3Client.h>
@@ -40,6 +38,12 @@
 #include <arrow/csv/reader.h>                               // for TableReader
 #include <arrow/type_fwd.h>                                 // for default_m...
 
+#ifdef __AVX2__
+#include <normal/tuple/arrow/CSVToArrowSIMDStreamParser.h>
+#include <normal/tuple/arrow/CSVToArrowSIMDChunkParser.h>
+#endif
+
+
 #define SKIP_SUITE false
 
 using namespace normal::ssb;
@@ -56,7 +60,7 @@ void simpleSelectRequest(const std::shared_ptr<Aws::S3::S3Client>& s3Client, int
 //  std::string keyName = "data.csv";
 //  std::string sql = "SELECT col2, col5, col9, col13, col29, col61, col91 FROM s3object WHERE cast(col1 as int) = 0;";
   std::string bucketName = "pushdowndb";
-  std::string keyName = fmt::format("ssb-sf100-sortlineorder/csv_150MB/lineorder_sharded/lineorder.tbl.{}", index);
+  std::string keyName = fmt::format("ssb-sf1-sortlineorder/csv/lineorder_sharded/lineorder.tbl.{}", index);
 //  std::string keyName = fmt::format("ssb-sf100-sortlineorder/parquet_150MB/lineorder_sharded/lineorder.parquet.{}", index);
 //  std::string keyName = fmt::format("ssb-sf100-sortlineorder/parquet_150MB/lineorder_sharded/lineorder.parquet.{}", index);
 //  std::string sql = "select lo_revenue, lo_supplycost, lo_orderdate, lo_suppkey, lo_custkey from s3Object";
@@ -107,7 +111,9 @@ void simpleSelectRequest(const std::shared_ptr<Aws::S3::S3Client>& s3Client, int
   std::string callerName = "testCaller";
   // Only worrying about parser performance when AVX instructions are on as that is the test setup we run in
   // so only added support for that here rather than adding non AVX converting too
+#ifdef __AVX2__
     auto parser = std::make_shared<CSVToArrowSIMDChunkParser>(callerName, 16 * 1024 * 1024, inputSchema, outputSchema, normal::connector::defaultMiniCatalogue->getCSVFileDelimiter());
+#endif
   std::mutex convertSelectResponseLock;
   std::vector<char*> allocations;
   std::vector<size_t> allocation_sizes;
@@ -145,9 +151,11 @@ void simpleSelectRequest(const std::shared_ptr<Aws::S3::S3Client>& s3Client, int
   uint64_t retrySleepTimeMS = 10;
   while (true) {
     // create a new parser to use as the current one has results from the previous request
+#ifdef __AVX2__
     if (parser->isInitialized()) {
       parser = std::make_shared<CSVToArrowSIMDChunkParser>(callerName, 16 * 1024 * 1024, inputSchema, outputSchema, normal::connector::defaultMiniCatalogue->getCSVFileDelimiter());
     }
+#endif
 //  std::chrono::steady_clock::time_point startTransferConvertTime = std::chrono::steady_clock::now();
 //  SPDLOG_INFO("Starting select request for {}/{}", bucketName, keyName);
 //  auto selectObjectContentOutcome = normal::plan::DefaultS3Client->SelectObjectContent(selectObjectContentRequest);
@@ -204,7 +212,7 @@ uint64_t simpleGetRequest(int requestNum) {
 //  auto requestKey = "ssb-sf10-sortlineorder/csv/lineorder_sharded/lineorder.tbl." + std::to_string(requestNum);
 //  auto requestKey = "minidata.csv";
 //  auto requestKey = "ssb-sf100-sortlineorder/csv/lineorder_sharded/lineorder.tbl." + std::to_string(requestNum);
-  std::string requestKey = fmt::format("ssb-sf100-sortlineorder/csv_150MB_initial_format/lineorder_sharded/lineorder.tbl.{}", requestNum);
+  std::string requestKey = fmt::format("ssb-sf1-sortlineorder/csv/lineorder_sharded/lineorder.tbl.{}", requestNum);
   auto schema = SSBSchema::lineOrder();
 
   auto requestStartTime = std::chrono::steady_clock::now();

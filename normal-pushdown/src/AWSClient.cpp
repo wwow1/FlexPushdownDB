@@ -102,7 +102,7 @@ std::shared_ptr<Aws::S3::S3Client> AWSClient::defaultS3Client() {
     }
     case normal::plan::Ceph: {
       SPDLOG_INFO("Using Ceph Client");
-      config.endpointOverride = "192.168.6.95:7480";
+      config.endpointOverride = "192.168.6.95:8000";
       std::ifstream configFile("/root/.s3cfg");
       if (!configFile.is_open()) {
         throw std::runtime_error("Error: Unable to open .s3cfg file.");
