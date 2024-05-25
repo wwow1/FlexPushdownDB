@@ -5,7 +5,7 @@
       "name": "date",
       "format": {
         "name": "csv",
-        "fieldDelimiter": ","
+        "fieldDelimiter": "|"
       },
       "numPartitions": 1,
       "fields": [
@@ -83,7 +83,7 @@
       "name": "supplier",
       "format": {
         "name": "csv",
-        "fieldDelimiter": ","
+        "fieldDelimiter": "|"
       },
       "numPartitions": 1,
       "fields": [
@@ -121,7 +121,7 @@
       "name": "customer",
       "format": {
         "name": "csv",
-        "fieldDelimiter": ","
+        "fieldDelimiter": "|"
       },
       "numPartitions": 1,
       "fields": [
@@ -163,7 +163,7 @@
       "name": "part",
       "format": {
         "name": "csv",
-        "fieldDelimiter": ","
+        "fieldDelimiter": "|"
       },
       "numPartitions": 1,
       "fields": [
@@ -209,7 +209,7 @@
       "name": "lineorder",
       "format": {
         "name": "csv",
-        "fieldDelimiter": ","
+        "fieldDelimiter": "|"
       },
       "numPartitions": 32,
       "fields": [

@@ -191,9 +191,9 @@ std::shared_ptr<Aws::S3::S3Client> AWSClient::makeS3Client() {
     }
     default: {
       SPDLOG_DEBUG("Using Ceph Client");
-      config.endpointOverride = "192.168.6.68:7480";
-      Aws::String accessKeyId = "W0AH6GQV3P4BUHUT07M2";
-      Aws::String secretKey = "11qqtD9DA6uqqIDbRTVxisAa7w2SvOwYbtUPHRbZ";
+      config.endpointOverride = "192.168.6.68:8000";
+      Aws::String accessKeyId = "8LTAARBKTIAO18M5GIF9";
+      Aws::String secretKey = "DYAncv3TBGixUvCUDuINlCN3QkgMKXGcPRgI8B7f";
       Aws::Auth::AWSCredentials minioCredentials = Aws::Auth::AWSCredentials(accessKeyId, secretKey);
       s3Client = Aws::MakeShared<Aws::S3::S3Client>(
               ALLOCATION_TAG,

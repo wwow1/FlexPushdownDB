@@ -196,7 +196,7 @@ std::shared_ptr<TupleSet> SelectPOp::s3Select(uint64_t startOffset, uint64_t end
 #ifdef __AVX2__
   auto simdParser = generateSIMDCSVParser();
 #else
-  auto parser = generateCSVParser();
+  parser_ = generateCSVParser();
 #endif
   // create s3select request (must create a new one for each call as different start/end offsets require a new
   // S3Select request object
@@ -360,7 +360,7 @@ std::shared_ptr<TupleSet> SelectPOp::s3Select(uint64_t startOffset, uint64_t end
   // If no results are returned then there is nothing to process
   if (s3Result_.size() > 0) {
     auto tupleSetV1 = parser_->parseCompletePayload(s3Result_.begin(), s3Result_.end());
-    auto tupleSet = TupleSet::make(tupleSetV1.value()->table());
+    tupleSet = TupleSet::make(tupleSetV1.value()->table());
   } else {
     tupleSet = TupleSet::makeWithEmptyTable();
   }

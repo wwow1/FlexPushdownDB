@@ -92,10 +92,14 @@ bool S3GetPOp::parallelTuplesetCreationSupported() {
 std::shared_ptr<TupleSet> S3GetPOp::readCSVFile(std::shared_ptr<arrow::io::InputStream> &arrowInputStream) {
   auto ioContext = arrow::io::IOContext();
   auto parse_options = arrow::csv::ParseOptions::Defaults();
+
+  auto csvFormat = std::static_pointer_cast<csv::CSVFormat>(table_->getFormat());
+  parse_options.delimiter = csvFormat->getFieldDelimiter();
+  // std::cout << "delimiter = " << csvFormat->getFieldDelimiter() << std::endl;
   auto read_options = arrow::csv::ReadOptions::Defaults();
   read_options.use_threads = false;
   read_options.skip_rows = 1; // Skip the header
-  read_options.column_names = getProjectColumnNames();
+  read_options.column_names = table_->getSchema()->field_names();
   auto convert_options = arrow::csv::ConvertOptions::Defaults();
   std::unordered_map<std::string, std::shared_ptr<::arrow::DataType>> columnTypes;
   for(const auto &columnName: getProjectColumnNames()){

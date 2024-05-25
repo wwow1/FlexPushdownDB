@@ -221,7 +221,7 @@ void TestUtil::runTest() {
 
   // create the executor
   makeExecutor();
-  std::cout << "111" << std::endl;
+
   // run queries
   for (uint i = 0; i < queryFileNames_.size(); ++i) {
     executeQueryFile(queryFileNames_[i]);

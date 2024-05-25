@@ -9,13 +9,13 @@ import math
 from multiprocessing import Process
 
 # configurable parameters
-sf = 0.01
+sf = 1
 num_partitions_dict = {
     'supplier': 1,
     'date': 1,
     'part': 1,
     'customer': 1,
-    'lineorder': 1
+    'lineorder': 32
 }
 
 
@@ -136,7 +136,7 @@ os.system('rm -rf {}'.format(data_dir))
 os.system('mkdir {}'.format(data_dir))
 
 # generate data
-os.system('./dbgen -s {}'.format(sf))
+os.system('./dbgen -vFf -s {}'.format(sf))
 print("Tables generated.")
 
 # format for each table

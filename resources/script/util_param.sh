@@ -4,7 +4,7 @@
 # configurable parameters
 export install_dependency=false
 export clean=false
-export build_parallel=8
+export build_parallel=20
 export build_dir_name="build"
 export deploy_dir_name="FPDB-build"
 export temp_dir_name="temp"

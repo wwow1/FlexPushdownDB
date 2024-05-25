@@ -48,8 +48,8 @@ public:
                                       int parallelDegree,
                                       bool isDistributed,
                                       ObjStoreType objStoreType,
-                                      const shared_ptr<Mode> &mode = Mode::pullupMode(),
-                                      CachingPolicyType cachingPolicyType = CachingPolicyType::NONE,
+                                      const shared_ptr<Mode> &mode = Mode::hybridMode(),
+                                      CachingPolicyType cachingPolicyType = CachingPolicyType::WLFU,
                                       size_t cacheSize = 4L * 1024 * 1024 * 1024);
 
   /**
