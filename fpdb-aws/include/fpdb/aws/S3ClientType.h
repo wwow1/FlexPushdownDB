@@ -10,7 +10,8 @@ namespace fpdb::aws {
 enum S3ClientType {
   S3,
   AIRMETTLE,
-  MINIO
+  MINIO,
+  CEPH
 };
 
 }

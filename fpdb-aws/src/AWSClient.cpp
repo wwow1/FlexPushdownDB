@@ -190,7 +190,17 @@ std::shared_ptr<Aws::S3::S3Client> AWSClient::makeS3Client() {
       break;
     }
     default: {
-      throw std::runtime_error("Bad S3Client Type");
+      SPDLOG_DEBUG("Using Ceph Client");
+      config.endpointOverride = "192.168.6.68:7480";
+      Aws::String accessKeyId = "W0AH6GQV3P4BUHUT07M2";
+      Aws::String secretKey = "11qqtD9DA6uqqIDbRTVxisAa7w2SvOwYbtUPHRbZ";
+      Aws::Auth::AWSCredentials minioCredentials = Aws::Auth::AWSCredentials(accessKeyId, secretKey);
+      s3Client = Aws::MakeShared<Aws::S3::S3Client>(
+              ALLOCATION_TAG,
+              minioCredentials,
+              config,
+              Aws::Client::AWSAuthV4Signer::PayloadSigningPolicy::Never,
+              false);
     }
   }
 

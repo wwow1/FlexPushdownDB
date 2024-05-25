@@ -221,11 +221,10 @@ void TestUtil::runTest() {
 
   // create the executor
   makeExecutor();
-
+  std::cout << "111" << std::endl;
   // run queries
   for (uint i = 0; i < queryFileNames_.size(); ++i) {
     executeQueryFile(queryFileNames_[i]);
-
     // fix cache layout if needed
     if (fixLayoutIndices_.find((int) i) != fixLayoutIndices_.end()) {
       fpdb::cache::FIX_CACHE_LAYOUT = true;
@@ -248,7 +247,7 @@ void TestUtil::readPushdownFlags() {
 void TestUtil::makeObjStoreConnector() {
   switch (objStoreType_) {
     case ObjStoreType::S3: {
-      auto awsClient = make_shared<AWSClient>(make_shared<AWSConfig>(fpdb::aws::S3, 0));
+      auto awsClient = make_shared<AWSClient>(make_shared<AWSConfig>(fpdb::aws::CEPH, 0));
       awsClient->init();
       objStoreConnector_ = make_shared<S3Connector>(awsClient);
       return;
@@ -267,7 +266,7 @@ void TestUtil::makeObjStoreConnector() {
 
 void TestUtil::makeCatalogueEntry() {
   // create the catalogue
-  string s3Bucket = "flexpushdowndb";
+  string s3Bucket = "";
   filesystem::path metadataPath = std::filesystem::current_path()
           .parent_path()
           .append("resources/metadata");

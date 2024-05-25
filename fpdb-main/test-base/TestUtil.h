@@ -50,7 +50,7 @@ public:
                                       ObjStoreType objStoreType,
                                       const shared_ptr<Mode> &mode = Mode::pullupMode(),
                                       CachingPolicyType cachingPolicyType = CachingPolicyType::NONE,
-                                      size_t cacheSize = 1L * 1024 * 1024 * 1024);
+                                      size_t cacheSize = 4L * 1024 * 1024 * 1024);
 
   /**
    * Test with single thread execution
